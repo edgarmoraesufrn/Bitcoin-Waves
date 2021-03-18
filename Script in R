@@ -1,0 +1,147 @@
+#### Bitcoin Waves ####
+
+# Important days
+
+genesis <- as.Date("2009-01-03") 
+pizza.day <- as.Date("2010-05-22") 
+halving1 <- as.Date("2012-11-28") 
+halving2 <- as.Date("2016-7-09")
+halving3 <- as.Date("2020-05-11")
+
+BTCini <- pizza.day - genesis 
+wave1 <- halving1 - pizza.day
+wave2 <- halving2 - halving1
+wave3 <- halving3 - halving2
+
+# get ticker from market
+
+btc <- read.csv("btc.csv", header = TRUE)
+btc <- data.frame(btc[,]) #adjust the range
+dimnames(btc)
+dim(btc)
+head(btc)
+tail(btc)
+
+plot(btc[,2], type="l", col="gold", main = "BTC-USD",
+     xlab="time post halving", ylab="BTC price (usd)")
+
+plot(btc[,2], type="l", col="gold", xlab=expression(paste("time post halving")), ylab="BTC price (usd)",
+     main = "BTC-USD 1st wave - Pizza day > 1st halving")
+plot(btc[,2], type="l", col="green", xlab=expression(paste("time post halving")), ylab="BTC price (usd)",
+     main = "BTC-USD 2nd wave - 1st halving > 2nd halving")
+plot(btc[,2], type="l", xlab=expression(paste("time post halving")), ylab="BTC price (usd)",
+     col="red", main = "BTC-USD 3rd wave - 2nd halving > 3rd halving")
+plot(btc[,2]*9, type="l", xlab=expression(paste("time post halving")), ylab="BTC price (usd)",
+     col="violet", main = "BTC-USD 3rd wave - 2nd halving > 3rd halving")
+lines(btc[,2], type="l", col="blue")
+
+halving1 <- as.Date(btc[,1])-as.Date(btc[,1])
+
+max.1st = max(btc[,2])
+max.1st.date = btc[,]
+max.2nd = max(btc[,2])
+max.2nd.date = btc[,]
+max.3rd = max(btc[,2])
+max.3rd = btc[,]
+
+max.4th1 = halving3 + 378 - 19
+max.4th2 = halving3 + 395 + 19
+
+days.max = c(384,371)
+mean(days.max)
+sd(days.max)
+
+# Prices Vectors
+
+wave.1 = c(btc[,2]) # adjust
+wave.2 = btc[,2]
+wave.3 = btc[,2]
+wave.4 = btc[,2]
+
+length(wave.1)
+length(wave.2)
+length(wave.3)
+
+wave.1m = mean(wave.1)
+wave.2m = mean(wave.2)
+wave.3m = mean(wave.3)
+wave.3m.frac = mean(wave.3[]) #adjust
+wave.4m = mean(wave.4)
+
+fac1 = wave.2m/wave.1m
+fac2 = wave.3m/wave.2m
+fac3 = wave.4m/wave.3m.frac 
+
+### Modeling Wave 2
+
+library("signal")
+
+wave.1.sg <- sgolayfilt(wave.1, n=11)
+
+plot(wave.1.sg*fac1, type="l", xlab=expression(paste("time post halving")), ylab="Adjusted price", main = "Savitsky-Golay Filter", col="gold")
+lines(wave.2, type="l",col="green")
+
+#calculate Cosine Similarity
+
+install.packages("lsa")
+library(lsa)
+
+cosine(wave.1.sg*fac1, wave.2)
+
+### Dynamic Time Warping
+
+install.packages("dtw")
+library(dtw)
+
+wave.1.sg <- sgolayfilt(wave.1, n=11)
+wave.2.sg <- sgolayfilt(wave.2, n=11)
+
+### Linear Combination Waves 1 and 2
+
+wave.3.comb <- (wave.1.sg*fac1*fac2 + wave.2.sg*fac2)/2
+wave.3.model <- dtw(wave.3.comb, wave.3)
+
+plot(wave.3.model, type="l", xlab=expression(paste("time post halving")), ylab="Adjusted price", main = "Combining 1st and 2nd waves vs 3rd wave", col="blue")
+lines(wave.3, type="l",col="violet")
+
+cosine(wave.2.model, wave.3)
+
+
+### Waves 1,2 3 in 4
+
+wave.2.sg <- sgolayfilt(wave.2, n=11)
+wave.3.sg <- sgolayfilt(wave.3, n=11)
+
+plot(wave.1.sg*fac1*fac2*fac3, type="l", xlab=expression(paste("time post halving")), ylab="Adjusted price", main = "1st, 2nd and 3rd waves - 2021", col="gold")
+lines(wave.2.sg*fac2*fac3, type="l",col="green")
+lines(wave.3.sg*fac3, type="l",col="violet")
+lines(wave.4, type="l",col="red")
+
+### Linear Combination Waves 2 and 3
+
+wave.4.comb <- (wave.2.sg*fac2*fac3 + wave.3.sg*fac3)/2
+wave.4.model <- dtw(wave.4.comb, wave.4)
+
+plot(wave.4.model, type="l", xlab=expression(paste("time post halving")), ylab="Adjusted price", main = "Combining Waves 2 and 3 vs Wave 4", col="blue")
+lines(wave.4, type="l",col="red")
+
+wave.2.sg <- sgolayfilt(wave.2, n=11)
+wave.3.sg <- sgolayfilt(wave.3, n=11)
+
+plot(wave.1.sg*fac1*fac2*fac3, type="l", xlab=expression(paste("time post halving")), ylab="Adjusted price", main = "Waves 1, 2, 3 and 4 - 2021", col="gold")
+lines(wave.2.sg*fac2*fac3, type="l",col="green")
+lines(wave.3.sg*fac3, type="l",col="red")
+lines(wave.4, type="l",col="blue")
+
+cosine(wave.4.model[], wave.4[])
+
+
+plot(wave.4.model*1.4, type="l", xlab=expression(paste("time post halving")), ylab="Adjusted price", main = "Bitcoin Waves Model - 2021", col="darkblue")
+lines(wave.4, type="l",col="red")
+lines(wave.4.model*0.6, type="l",col="cyan")
+lines(wave.4.model*0.8, type="l",col="cyan2")
+lines(wave.4.model*1.2, type="l",col="blue4")
+lines(wave.4.model, type="l",col="blue")
+
+max(wave.4.model)
+wave.4.model[]
